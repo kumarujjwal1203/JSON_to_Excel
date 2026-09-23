@@ -1,0 +1,372 @@
+{
+  "sysint_updated": "",
+  "gstin": "24AAACO4007A7Z5",
+  "ret_period": "052026",
+  "sup_details": {
+    "osup_det": {
+      "txval": 0,
+      "iamt": 0,
+      "camt": 0,
+      "samt": 0,
+      "csamt": 0
+    },
+    "osup_zero": {
+      "txval": 0,
+      "iamt": 0,
+      "camt": 0,
+      "samt": 0,
+      "csamt": 0
+    },
+    "osup_nil_exmp": {
+      "txval": 0,
+      "iamt": 0,
+      "camt": 0,
+      "samt": 0,
+      "csamt": 0
+    },
+    "isup_rev": {
+      "txval": 0,
+      "iamt": 0,
+      "camt": 0,
+      "samt": 0,
+      "csamt": 0
+    },
+    "osup_nongst": {
+      "txval": 0,
+      "iamt": 0,
+      "camt": 0,
+      "samt": 0,
+      "csamt": 0
+    }
+  },
+  "inter_sup": {
+    "unreg_details": [],
+    "comp_details": [],
+    "uin_details": []
+  },
+  "itc_elg": {
+    "itc_avl": [
+      {
+        "ty": "IMPG",
+        "iamt": 0,
+        "camt": 0,
+        "samt": 0,
+        "csamt": 0
+      },
+      {
+        "ty": "IMPS",
+        "iamt": 0,
+        "camt": 0,
+        "samt": 0,
+        "csamt": 0
+      },
+      {
+        "ty": "ISRC",
+        "iamt": 0,
+        "camt": 0,
+        "samt": 0,
+        "csamt": 0
+      },
+      {
+        "ty": "ISD",
+        "iamt": 9919.73,
+        "camt": 0,
+        "samt": 0,
+        "csamt": 0
+      },
+      {
+        "ty": "OTH",
+        "iamt": 6238,
+        "camt": 10859,
+        "samt": 10859,
+        "csamt": 0
+      }
+    ],
+    "itc_rev": [
+      {
+        "ty": "RUL",
+        "iamt": 0,
+        "camt": 0,
+        "samt": 0,
+        "csamt": 0
+      },
+      {
+        "ty": "OTH",
+        "iamt": 0,
+        "camt": 10075,
+        "samt": 10075,
+        "csamt": 0
+      }
+    ],
+    "itc_net": {
+      "iamt": 16157.73,
+      "camt": 784,
+      "samt": 784,
+      "csamt": 0
+    },
+    "itc_inelg": [
+      {
+        "ty": "RUL",
+        "iamt": 6238,
+        "camt": 785,
+        "samt": 785,
+        "csamt": 0
+      },
+      {
+        "ty": "OTH",
+        "iamt": 0,
+        "camt": 0,
+        "samt": 0,
+        "csamt": 0
+      }
+    ]
+  },
+  "intr_ltfee": {
+    "intr_details": {
+      "iamt": 0,
+      "camt": 0,
+      "samt": 0,
+      "csamt": 0
+    },
+    "ltfee_details": {
+      "iamt": 0,
+      "camt": 0,
+      "samt": 0,
+      "csamt": 0
+    }
+  },
+  "tt_val": {
+    "tt_pay": 0,
+    "tt_csh_pd": 2945876,
+    "tt_itc_pd": 0
+  },
+  "qn": {
+    "q1": "N",
+    "q2": "Y",
+    "q3": "Y",
+    "q4": "Y",
+    "q5": "Y",
+    "q6": "Y",
+    "q7": "N"
+  },
+  "eco_dtls": {
+    "eco_sup": {
+      "txval": 58917516.44,
+      "iamt": 0,
+      "camt": 1472938.08,
+      "samt": 1472938.08,
+      "csamt": 0
+    },
+    "eco_reg_sup": {
+      "txval": 0
+    }
+  },
+  "taxpayble": {
+    "bal": {
+      "gstin": "24AAACO4007A7Z5",
+      "cash_bal": {
+        "igst": {
+          "tx": 2362,
+          "intr": 0,
+          "pen": 0,
+          "fee": 0,
+          "oth": 0
+        },
+        "cgst": {
+          "tx": 4,
+          "intr": 0,
+          "pen": 0,
+          "fee": 0,
+          "oth": 0
+        },
+        "sgst": {
+          "tx": 4,
+          "intr": 0,
+          "pen": 0,
+          "fee": 0,
+          "oth": 0
+        },
+        "cess": {
+          "tx": 0,
+          "intr": 0,
+          "pen": 0,
+          "fee": 0,
+          "oth": 0
+        },
+        "igst_tot_bal": 2362,
+        "cgst_tot_bal": 4,
+        "sgst_tot_bal": 4,
+        "cess_tot_bal": 0
+      },
+      "itc_bal": {
+        "igst_bal": 3662,
+        "cgst_bal": 269602,
+        "sgst_bal": 314345,
+        "cess_bal": 0
+      }
+    },
+    "status": 2,
+    "returnsDbCdredList": {
+      "tax_pay": [
+        {
+          "igst": {
+            "tx": 0,
+            "intr": 0,
+            "pen": 0,
+            "fee": 0,
+            "oth": 0,
+            "tot": 0
+          },
+          "sgst": {
+            "tx": 0,
+            "intr": 0,
+            "pen": 0,
+            "fee": 0,
+            "oth": 0,
+            "tot": 0
+          },
+          "cgst": {
+            "tx": 0,
+            "intr": 0,
+            "pen": 0,
+            "fee": 0,
+            "oth": 0,
+            "tot": 0
+          },
+          "cess": {
+            "tx": 0,
+            "intr": 0,
+            "pen": 0,
+            "fee": 0,
+            "oth": 0,
+            "tot": 0
+          },
+          "liab_id": 1040186596,
+          "trancd": 30002,
+          "trandate": "20-06-2026"
+        },
+        {
+          "igst": {
+            "tx": 0,
+            "intr": 0,
+            "pen": 0,
+            "fee": 0,
+            "oth": 0,
+            "tot": 0
+          },
+          "sgst": {
+            "tx": 1472938,
+            "intr": 0,
+            "pen": 0,
+            "fee": 0,
+            "oth": 0,
+            "tot": 1472938
+          },
+          "cgst": {
+            "tx": 1472938,
+            "intr": 0,
+            "pen": 0,
+            "fee": 0,
+            "oth": 0,
+            "tot": 1472938
+          },
+          "cess": {
+            "tx": 0,
+            "intr": 0,
+            "pen": 0,
+            "fee": 0,
+            "oth": 0,
+            "tot": 0
+          },
+          "liab_id": 1040186597,
+          "trancd": 30003,
+          "trandate": "20-06-2026"
+        }
+      ],
+      "tax_paid": {
+        "pd_by_cash": [
+          {
+            "igst": {
+              "tx": 0,
+              "intr": 0,
+              "pen": 0,
+              "fee": 0,
+              "oth": 0,
+              "tot": 0
+            },
+            "sgst": {
+              "tx": 1472938,
+              "intr": 0,
+              "pen": 0,
+              "fee": 0,
+              "oth": 0,
+              "tot": 1472938
+            },
+            "cgst": {
+              "tx": 1472938,
+              "intr": 0,
+              "pen": 0,
+              "fee": 0,
+              "oth": 0,
+              "tot": 1472938
+            },
+            "cess": {
+              "tx": 0,
+              "intr": 0,
+              "pen": 0,
+              "fee": 0,
+              "oth": 0,
+              "tot": 0
+            },
+            "liab_id": 1040186597,
+            "debit_id": "DC2406260283763",
+            "trancd": 30003,
+            "trandate": "20-06-2026"
+          }
+        ],
+        "pd_by_itc": [],
+        "pd_by_nls": []
+      },
+      "net_tax_pay": [
+        {
+          "igst": {
+            "tx": 0,
+            "intr": 0,
+            "pen": 0,
+            "fee": 0,
+            "oth": 0,
+            "tot": 0
+          },
+          "sgst": {
+            "tx": 1472938,
+            "intr": 0,
+            "pen": 0,
+            "fee": 0,
+            "oth": 0,
+            "tot": 1472938
+          },
+          "cgst": {
+            "tx": 1472938,
+            "intr": 0,
+            "pen": 0,
+            "fee": 0,
+            "oth": 0,
+            "tot": 1472938
+          },
+          "cess": {
+            "tx": 0,
+            "intr": 0,
+            "pen": 0,
+            "fee": 0,
+            "oth": 0,
+            "tot": 0
+          },
+          "liab_id": 0,
+          "debit_id": "AB240526791869C",
+          "trancd": 30003,
+          "trandate": "20-06-2026"
+        }
+      ]
+    }
+  }
+}

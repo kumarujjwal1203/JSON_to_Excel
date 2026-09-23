@@ -1,0 +1,12 @@
+# Ignore intermediate Visual Studio / .NET build directories
+**/bin/
+**/obj/
+.vs/
+*.user
+*.suo
+*.pdb
+
+# Explicitly INCLUDE published .exe files and installer
+!publish/
+!publish/**
+!publish/**/*.exe

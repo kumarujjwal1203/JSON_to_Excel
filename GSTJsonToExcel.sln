@@ -1,0 +1,36 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{5A559739-7966-4DF7-8D08-D1A9263CA5CA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GSTJsonToExcel.Tests", "tests\GSTJsonToExcel.Tests\GSTJsonToExcel.Tests.csproj", "{E825A985-01E3-4778-8713-064EA0C07E1C}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{66E079D7-8FA7-4800-BB8D-D9CCB767F44E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GSTJsonToExcel", "src\GSTJsonToExcel\GSTJsonToExcel.csproj", "{37AD04E6-2924-4D46-8833-DC1CAEC74C45}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{E825A985-01E3-4778-8713-064EA0C07E1C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E825A985-01E3-4778-8713-064EA0C07E1C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E825A985-01E3-4778-8713-064EA0C07E1C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E825A985-01E3-4778-8713-064EA0C07E1C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{37AD04E6-2924-4D46-8833-DC1CAEC74C45}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{37AD04E6-2924-4D46-8833-DC1CAEC74C45}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{37AD04E6-2924-4D46-8833-DC1CAEC74C45}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{37AD04E6-2924-4D46-8833-DC1CAEC74C45}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{E825A985-01E3-4778-8713-064EA0C07E1C} = {5A559739-7966-4DF7-8D08-D1A9263CA5CA}
+		{37AD04E6-2924-4D46-8833-DC1CAEC74C45} = {66E079D7-8FA7-4800-BB8D-D9CCB767F44E}
+	EndGlobalSection
+EndGlobal

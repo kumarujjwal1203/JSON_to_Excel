@@ -1,0 +1,23 @@
+{
+  "test_id": "EDGE_001",
+  "supplier_gstin": "07AAAAA0000A1Z5",
+  "invoice_number": "00009876",
+  "hsn_code": "000123",
+  "pincode": "011001",
+  "high_precision_taxable": 987654321.12345678,
+  "zero_val": 0,
+  "negative_adjustment": -4500.5,
+  "boolean_flag_true": true,
+  "boolean_flag_false": false,
+  "null_reference": null,
+  "empty_string_field": "",
+  "unknown_future_field_string": "FutureGSTStandard_v3.2",
+  "unknown_future_field_nested": {
+    "sub_code": "X99",
+    "sub_rate": 0.05
+  },
+  "empty_array_test": [],
+  "empty_object_test": {},
+  "simple_array_of_numbers": [10, 20, 30],
+  "simple_array_of_strings": ["Apple", "Banana", "Cherry"]
+}
