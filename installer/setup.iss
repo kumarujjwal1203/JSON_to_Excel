@@ -32,11 +32,11 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
-; 64-bit Native Binary for 64-bit Windows
-Source: "..\publish\win-x64\GSTJsonToExcel.exe"; DestDir: "{app}"; DestName: "{#MyAppExeName}"; Check: Is64BitInstallMode; Flags: ignoreversion
+; 64-bit Native Binary and Companion Libraries for 64-bit Windows
+Source: "..\publish\win-x64\*"; DestDir: "{app}"; Check: Is64BitInstallMode; Flags: ignoreversion recursesubdirs createallsubdirs
 
-; 32-bit Native Binary for 32-bit Windows
-Source: "..\publish\win-x86\GSTJsonToExcel.exe"; DestDir: "{app}"; DestName: "{#MyAppExeName}"; Check: not Is64BitInstallMode; Flags: ignoreversion
+; 32-bit Native Binary and Companion Libraries for 32-bit Windows
+Source: "..\publish\win-x86\*"; DestDir: "{app}"; Check: not Is64BitInstallMode; Flags: ignoreversion recursesubdirs createallsubdirs
 
 [Icons]
 Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"

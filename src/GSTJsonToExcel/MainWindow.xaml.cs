@@ -70,16 +70,9 @@ namespace GSTJsonToExcel
 
         private void MaximizeButton_Click(object sender, RoutedEventArgs e)
         {
-            if (WindowState == WindowState.Maximized)
-            {
-                WindowState = WindowState.Normal;
-                if (MaximizeButton != null) MaximizeButton.Content = "🗖";
-            }
-            else
-            {
-                WindowState = WindowState.Maximized;
-                if (MaximizeButton != null) MaximizeButton.Content = "🗗";
-            }
+            WindowState = WindowState == WindowState.Maximized
+                ? WindowState.Normal
+                : WindowState.Maximized;
         }
 
         private void CloseButton_Click(object sender, RoutedEventArgs e)

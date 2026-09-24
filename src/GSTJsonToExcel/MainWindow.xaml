@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:models="clr-namespace:GSTJsonToExcel.Models"
+        xmlns:annualViews="clr-namespace:GSTJsonToExcel.Features.AnnualReport.Views"
         mc:Ignorable="d"
         Title="GST JSON to Excel Converter — Professional Octa Edition"
         Icon="app_icon.ico"
@@ -132,8 +133,8 @@
                 </Grid.ColumnDefinitions>
 
                 <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
-                    <Border CornerRadius="24" Width="44" Height="44" Margin="0,0,12,0" Background="White" ClipToBounds="True" Padding="1" VerticalAlignment="Center">
-                        <Image Source="app_logo.png" Stretch="Uniform" RenderOptions.BitmapScalingMode="HighQuality" />
+                    <Border CornerRadius="22" Width="44" Height="44" Margin="0,0,12,0" Background="Transparent" ClipToBounds="True" Padding="0" VerticalAlignment="Center">
+                        <Image Source="app_logo.png" Stretch="UniformToFill" RenderOptions.BitmapScalingMode="HighQuality" />
                     </Border>
                     <StackPanel VerticalAlignment="Center">
                         <TextBlock Text="GST JSON TO EXCEL CONVERTER" 
@@ -144,20 +145,11 @@
                 </StackPanel>
 
                 <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                    <Border Background="#1E293B" CornerRadius="12" Padding="10,4" Margin="0,0,8,0">
-                        <TextBlock Text="🔒 100% Offline" FontSize="11" FontWeight="SemiBold" Foreground="#38BDF8" />
+                    <Border Background="#1E293B" BorderBrush="#334155" BorderThickness="1" CornerRadius="14" Padding="12,5" Margin="0,0,10,0">
+                        <TextBlock Text="🔒 100% Offline &amp; Secure" FontSize="11.5" FontWeight="SemiBold" Foreground="#38BDF8" />
                     </Border>
-                    <Border Background="#166534" CornerRadius="12" Padding="10,4" Margin="0,0,14,0">
-                        <TextBlock Text="v2.5 Professional" FontSize="11" FontWeight="SemiBold" Foreground="#86EFAC" />
-                    </Border>
-
-                    <!-- Custom Window Minimize, Maximize, Close Buttons -->
-                    <Border Background="#0F172A" CornerRadius="8" Padding="3" BorderBrush="#334155" BorderThickness="1">
-                        <StackPanel Orientation="Horizontal">
-                            <Button Content="—" Click="MinimizeButton_Click" ToolTip="Minimize Application" Style="{StaticResource WindowControlButtonStyle}" Margin="0,0,2,0" />
-                            <Button x:Name="MaximizeButton" Content="🗖" Click="MaximizeButton_Click" ToolTip="Maximize / Restore Window" Style="{StaticResource WindowControlButtonStyle}" Margin="0,0,2,0" />
-                            <Button Content="✕" Click="CloseButton_Click" ToolTip="Close Application" Style="{StaticResource WindowCloseButtonStyle}" />
-                        </StackPanel>
+                    <Border Background="#166534" BorderBrush="#15803D" BorderThickness="1" CornerRadius="14" Padding="12,5">
+                        <TextBlock Text="v2.5 Enterprise" FontSize="11.5" FontWeight="SemiBold" Foreground="#86EFAC" />
                     </Border>
                 </StackPanel>
             </Grid>
@@ -165,8 +157,77 @@
 
         <!-- Main Scrollable Content -->
         <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-            <StackPanel Margin="28,20,28,20">
+            <StackPanel Margin="24,18,24,20">
 
+                <!-- Top-Level Segmented Mode Switcher -->
+                <Border Background="#E2E8F0" CornerRadius="10" Padding="5" Margin="0,0,0,18">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Tab 1: Standard Converter -->
+                        <Button Grid.Column="0"
+                                Command="{Binding SwitchToStandardTabCommand}"
+                                Cursor="Hand"
+                                Margin="0,0,3,0">
+                            <Button.Template>
+                                <ControlTemplate TargetType="Button">
+                                    <Border Background="{Binding IsStandardConverterTab, Converter={StaticResource BoolToBrush}, ConverterParameter='#FFFFFF|#E2E8F0'}"
+                                            BorderBrush="{Binding IsStandardConverterTab, Converter={StaticResource BoolToBrush}, ConverterParameter='#CBD5E1|#E2E8F0'}"
+                                            BorderThickness="1"
+                                            CornerRadius="7"
+                                            Padding="14,10">
+                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                            <TextBlock Text="⚡ Standard Converter"
+                                                       FontWeight="Bold" FontSize="13.5"
+                                                       Foreground="{Binding IsStandardConverterTab, Converter={StaticResource BoolToBrush}, ConverterParameter='#1D4ED8|#475569'}" />
+                                            <TextBlock Text="  (Individual / Consolidated Excel)"
+                                                       FontSize="12" VerticalAlignment="Center"
+                                                       Foreground="{Binding IsStandardConverterTab, Converter={StaticResource BoolToBrush}, ConverterParameter='#334155|#64748B'}" />
+                                        </StackPanel>
+                                    </Border>
+                                </ControlTemplate>
+                            </Button.Template>
+                        </Button>
+
+                        <!-- Tab 2: Summary & Reconciliation Report -->
+                        <Button Grid.Column="1"
+                                Command="{Binding SwitchToAnnualTabCommand}"
+                                Cursor="Hand"
+                                Margin="3,0,0,0">
+                            <Button.Template>
+                                <ControlTemplate TargetType="Button">
+                                    <Border Background="{Binding IsAnnualReportTab, Converter={StaticResource BoolToBrush}, ConverterParameter='#FFFFFF|#E2E8F0'}"
+                                            BorderBrush="{Binding IsAnnualReportTab, Converter={StaticResource BoolToBrush}, ConverterParameter='#CBD5E1|#E2E8F0'}"
+                                            BorderThickness="1"
+                                            CornerRadius="7"
+                                            Padding="14,10">
+                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                            <TextBlock Text="📊 Summary &amp; Reconciliation"
+                                                       FontWeight="Bold" FontSize="13.5"
+                                                       Foreground="{Binding IsAnnualReportTab, Converter={StaticResource BoolToBrush}, ConverterParameter='#1D4ED8|#475569'}" />
+                                            <TextBlock Text="  (GSTR-3B • 1 • 2A • 2B)"
+                                                       FontSize="12" VerticalAlignment="Center"
+                                                       Foreground="{Binding IsAnnualReportTab, Converter={StaticResource BoolToBrush}, ConverterParameter='#334155|#64748B'}" />
+                                            <Border Background="#DCFCE7" BorderBrush="#86EFAC" BorderThickness="1" CornerRadius="4" Padding="6,1" Margin="8,0,0,0" VerticalAlignment="Center">
+                                                <TextBlock Text="ANNUAL / MONTHLY" FontSize="9.5" FontWeight="Bold" Foreground="#15803D" />
+                                            </Border>
+                                        </StackPanel>
+                                    </Border>
+                                </ControlTemplate>
+                            </Button.Template>
+                        </Button>
+                    </Grid>
+                </Border>
+
+                <!-- Annual Report View -->
+                <annualViews:AnnualReportView DataContext="{Binding AnnualReportVM}"
+                                              Visibility="{Binding DataContext.IsAnnualReportTab, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BoolToVis}}" />
+
+                <!-- Standard Converter View -->
+                <StackPanel Visibility="{Binding IsStandardConverterTab, Converter={StaticResource BoolToVis}}">
                 <!-- 1. Selection & Drop Zone Card -->
                 <Border Style="{StaticResource ModernCardStyle}">
                     <StackPanel>
@@ -336,6 +397,59 @@
                             </Border>
                         </UniformGrid>
 
+                        <!-- Interactive Month-Wise Selection Panel -->
+                        <Border Background="#F8FAFC" BorderBrush="#BAE6FD" BorderThickness="1.5" CornerRadius="8" Padding="12,10" Margin="0,0,0,14"
+                                Visibility="{Binding HasAvailableMonths, Converter={StaticResource BoolToVis}}">
+                            <StackPanel>
+                                <Grid Margin="0,0,0,8">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <WrapPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,12,0">
+                                        <TextBlock Text="📅 Select Months to Convert (Month-Wise):" FontWeight="Bold" FontSize="13" Foreground="#0F172A" VerticalAlignment="Center" Margin="0,0,10,0" />
+                                        <Border Background="#EFF6FF" BorderBrush="#BFDBFE" BorderThickness="1" CornerRadius="10" Padding="8,2" VerticalAlignment="Center">
+                                            <TextBlock Text="{Binding SelectedMonthsSummary}" FontSize="11.5" FontWeight="SemiBold" Foreground="#1D4ED8" />
+                                        </Border>
+                                    </WrapPanel>
+                                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                                        <Button Content="✓ All Months" Command="{Binding SelectAllMonthsCommand}" Style="{StaticResource FilterChipStyle}" Background="#E0F2FE" BorderBrush="#BAE6FD" Margin="0,0,6,0" />
+                                        <Button Content="✕ Unselect All" Command="{Binding DeselectAllMonthsCommand}" Style="{StaticResource FilterChipStyle}" Background="#F1F5F9" />
+                                    </StackPanel>
+                                </Grid>
+
+                                <ItemsControl ItemsSource="{Binding AvailableMonths}">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <WrapPanel Orientation="Horizontal" />
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border Background="{Binding IsSelected, Converter={StaticResource BoolToBrush}, ConverterParameter='#EFF6FF|#FFFFFF'}"
+                                                    BorderBrush="{Binding IsSelected, Converter={StaticResource BoolToBrush}, ConverterParameter='#2563EB|#CBD5E1'}"
+                                                    BorderThickness="1.5"
+                                                    CornerRadius="6"
+                                                    Padding="10,5"
+                                                    Margin="0,0,8,6"
+                                                    Cursor="Hand">
+                                                <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                          FontWeight="SemiBold"
+                                                          FontSize="12"
+                                                          Foreground="{Binding IsSelected, Converter={StaticResource BoolToBrush}, ConverterParameter='#1E40AF|#475569'}"
+                                                          VerticalContentAlignment="Center">
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <TextBlock Text="{Binding MonthLabel}" FontWeight="Bold" />
+                                                        <TextBlock Text="{Binding FileCount, StringFormat=' ({0})'}" FontSize="11" Opacity="0.85" />
+                                                    </StackPanel>
+                                                </CheckBox>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
+                        </Border>
+
                         <!-- Filter Chips & Search Bar -->
                         <Grid Margin="0,0,0,12">
                             <Grid.ColumnDefinitions>
@@ -393,6 +507,17 @@
                                             <DataTemplate>
                                                 <Border Background="#1E3A8A" CornerRadius="4" Padding="6,2" HorizontalAlignment="Center" VerticalAlignment="Center">
                                                     <TextBlock Text="{Binding FileType}" FontWeight="Bold" FontSize="10" Foreground="White" />
+                                                </Border>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+
+                                    <!-- Return Month / Period Badge -->
+                                    <DataGridTemplateColumn Header="Month" Width="95">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <Border Background="#EFF6FF" BorderBrush="#BFDBFE" BorderThickness="1" CornerRadius="4" Padding="6,2" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                                    <TextBlock Text="{Binding ReturnPeriod}" FontWeight="Bold" FontSize="11" Foreground="#1D4ED8" />
                                                 </Border>
                                             </DataTemplate>
                                         </DataGridTemplateColumn.CellTemplate>
@@ -543,6 +668,7 @@
                         <TextBlock Text="{Binding ErrorMessage}" FontSize="12" Foreground="#B91C1C" Margin="0,4,0,0" TextWrapping="Wrap" />
                     </StackPanel>
                 </Border>
+                </StackPanel>
 
             </StackPanel>
         </ScrollViewer>

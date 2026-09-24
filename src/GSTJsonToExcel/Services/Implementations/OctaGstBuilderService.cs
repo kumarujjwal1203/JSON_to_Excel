@@ -30,107 +30,120 @@ namespace GSTJsonToExcel.Services.Implementations
             string outputExcelPath,
             CancellationToken cancellationToken = default)
         {
-            try
+            return await Task.Run(async () =>
             {
-                using var workbook = new XLWorkbook();
-                var companyGstins = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-                var periods = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-                string companyName = "Test_SPECTAL MANAGEMENT";
-
                 var jsonDocs = new List<(string FileName, JsonDocument Doc)>();
-                var allLeafNodes = new Dictionary<string, JsonFlatValue>(StringComparer.Ordinal);
-
-                foreach (var file in sourceFiles)
+                try
                 {
-                    cancellationToken.ThrowIfCancellationRequested();
+                    using var workbook = new XLWorkbook();
+                    var companyGstins = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                    var periods = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                    string companyName = "Test_SPECTAL MANAGEMENT";
 
-                    await using var stream = File.OpenRead(file.FilePath);
-                    var doc = await JsonDocument.ParseAsync(stream, new JsonDocumentOptions
+                    var allLeafNodes = new Dictionary<string, JsonFlatValue>(StringComparer.Ordinal);
+
+                    foreach (var file in sourceFiles)
                     {
-                        AllowTrailingCommas = true,
-                        CommentHandling = JsonCommentHandling.Skip
-                    }, cancellationToken);
+                        cancellationToken.ThrowIfCancellationRequested();
 
-                    jsonDocs.Add((file.FileName, doc));
+                        await using var stream = File.OpenRead(file.FilePath);
+                        var doc = await JsonDocument.ParseAsync(stream, new JsonDocumentOptions
+                        {
+                            AllowTrailingCommas = true,
+                            CommentHandling = JsonCommentHandling.Skip
+                        }, cancellationToken);
 
-                    // Extract GSTIN and Tax Period from data or root
-                    var root = doc.RootElement;
-                    var data = ResolveDataElement(root);
+                        jsonDocs.Add((file.FileName, doc));
 
-                    string g = GetPropString(data, "gstin");
-                    if (string.IsNullOrEmpty(g)) g = GetPropString(root, "gstin");
-                    if (string.IsNullOrEmpty(g))
-                    {
-                        var mGstin = Regex.Match(file.FileName, @"[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}");
-                        if (mGstin.Success) g = mGstin.Value;
+                        // Extract GSTIN and Tax Period from data or root
+                        var root = doc.RootElement;
+                        var data = ResolveDataElement(root);
+
+                        string g = GetPropString(data, "gstin");
+                        if (string.IsNullOrEmpty(g)) g = GetPropString(root, "gstin");
+                        if (string.IsNullOrEmpty(g))
+                        {
+                            var mGstin = Regex.Match(file.FileName, @"[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}");
+                            if (mGstin.Success) g = mGstin.Value;
+                        }
+                        if (!string.IsNullOrEmpty(g)) companyGstins.Add(g);
+
+                        string cn = GetPropString(data, "cname", "trade_name", "lgl_name", "trdnm");
+                        if (string.IsNullOrEmpty(cn)) cn = GetPropString(root, "cname", "trade_name", "lgl_name", "trdnm");
+                        if (!string.IsNullOrEmpty(cn)) companyName = cn;
+
+                        string fp = GetPropString(data, "fp", "ret_period", "rtnprd");
+                        if (string.IsNullOrEmpty(fp)) fp = GetPropString(root, "fp", "ret_period", "rtnprd");
+                        if (string.IsNullOrEmpty(fp))
+                        {
+                            var mFp = Regex.Match(file.FileName, @"_([0-1][0-9]20[2-3][0-9])_");
+                            if (mFp.Success) fp = mFp.Groups[1].Value;
+                        }
+                        if (!string.IsNullOrEmpty(fp)) periods.Add(fp);
+
+                        // Index leaves for All_Data_Index safety net (cap at 10,000 leaves to prevent huge RAM spikes on massive batches)
+                        if (allLeafNodes.Count < 10000)
+                        {
+                            IndexLeaves(doc.RootElement, $"[{file.FileName}] $", allLeafNodes);
+                        }
                     }
-                    if (!string.IsNullOrEmpty(g)) companyGstins.Add(g);
 
-                    string cn = GetPropString(data, "cname", "trade_name", "lgl_name", "trdnm");
-                    if (string.IsNullOrEmpty(cn)) cn = GetPropString(root, "cname", "trade_name", "lgl_name", "trdnm");
-                    if (!string.IsNullOrEmpty(cn)) companyName = cn;
+                    if (companyGstins.Count == 0) companyGstins.Add("07ACWFS8659K2ZV");
+                    string periodRange = FormatPeriodRange(periods);
 
-                    string fp = GetPropString(data, "fp", "ret_period", "rtnprd");
-                    if (string.IsNullOrEmpty(fp)) fp = GetPropString(root, "fp", "ret_period", "rtnprd");
-                    if (string.IsNullOrEmpty(fp))
+                    // 1. Build Overview Sheet
+                    var overviewSheet = workbook.Worksheets.Add("Overview");
+                    BuildOverviewSheet(overviewSheet, fileType, companyGstins, companyName, periodRange);
+
+                    int totalRecords = 0;
+
+                    // 2. Build Type-Specific Standard Sheets
+                    switch (fileType)
                     {
-                        var mFp = Regex.Match(file.FileName, @"_([0-1][0-9]20[2-3][0-9])_");
-                        if (mFp.Success) fp = mFp.Groups[1].Value;
-                    }
-                    if (!string.IsNullOrEmpty(fp)) periods.Add(fp);
+                        case GstFileType.R1:
+                            totalRecords += BuildR1Sheets(workbook, jsonDocs);
+                            break;
 
-                    // Index leaves for All_Data_Index safety net
-                    IndexLeaves(doc.RootElement, $"[{file.FileName}] $", allLeafNodes);
+                        case GstFileType.R2A:
+                            totalRecords += BuildR2ASheets(workbook, jsonDocs);
+                            break;
+
+                        case GstFileType.R2B:
+                            totalRecords += BuildR2BSheets(workbook, jsonDocs);
+                            break;
+
+                        default:
+                            // Fallback generic mapping
+                            break;
+                    }
+
+                    // 3. Build All_Data_Index Sheet for 110% zero data loss guarantee
+                    var indexSheet = workbook.Worksheets.Add("All_Data_Index");
+                    BuildAuditIndexSheet(indexSheet, allLeafNodes);
+
+                    // Ensure output directory exists and save
+                    string? dir = Path.GetDirectoryName(outputExcelPath);
+                    if (!string.IsNullOrEmpty(dir)) Directory.CreateDirectory(dir);
+
+                    outputExcelPath = FileLockHelper.GetAvailableOutputPath(outputExcelPath);
+                    workbook.SaveAs(outputExcelPath);
+                    _logger.LogInfo($"Octa format Excel '{Path.GetFileName(outputExcelPath)}' created successfully ({totalRecords} records).");
+
+                    return (true, totalRecords, null);
                 }
-
-                if (companyGstins.Count == 0) companyGstins.Add("07ACWFS8659K2ZV");
-                string periodRange = FormatPeriodRange(periods);
-
-                // 1. Build Overview Sheet
-                var overviewSheet = workbook.Worksheets.Add("Overview");
-                BuildOverviewSheet(overviewSheet, fileType, companyGstins, companyName, periodRange);
-
-                int totalRecords = 0;
-
-                // 2. Build Type-Specific Standard Sheets
-                switch (fileType)
+                catch (Exception ex)
                 {
-                    case GstFileType.R1:
-                        totalRecords += BuildR1Sheets(workbook, jsonDocs);
-                        break;
-
-                    case GstFileType.R2A:
-                        totalRecords += BuildR2ASheets(workbook, jsonDocs);
-                        break;
-
-                    case GstFileType.R2B:
-                        totalRecords += BuildR2BSheets(workbook, jsonDocs);
-                        break;
-
-                    default:
-                        // Fallback generic mapping
-                        break;
+                    _logger.LogError($"Failed building Octa GST Excel for {fileType}", ex);
+                    return (false, 0, ex.Message);
                 }
-
-                // 3. Build All_Data_Index Sheet for 110% zero data loss guarantee
-                var indexSheet = workbook.Worksheets.Add("All_Data_Index");
-                BuildAuditIndexSheet(indexSheet, allLeafNodes);
-
-                // Ensure output directory exists and save
-                string? dir = Path.GetDirectoryName(outputExcelPath);
-                if (!string.IsNullOrEmpty(dir)) Directory.CreateDirectory(dir);
-
-                outputExcelPath = FileLockHelper.GetAvailableOutputPath(outputExcelPath);
-                workbook.SaveAs(outputExcelPath);
-                _logger.LogInfo($"Octa format Excel '{Path.GetFileName(outputExcelPath)}' created successfully ({totalRecords} records).");
-
-                return (true, totalRecords, null);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError($"Failed building Octa GST Excel for {fileType}", ex);
-                return (false, 0, ex.Message);
-            }
+                finally
+                {
+                    foreach (var (_, doc) in jsonDocs)
+                    {
+                        try { doc.Dispose(); } catch { }
+                    }
+                }
+            }, cancellationToken);
         }
 
         #region Overview Sheet (Matching Reference Screenshot)
@@ -1706,7 +1719,7 @@ namespace GSTJsonToExcel.Services.Implementations
 
             try
             {
-                sheet.Columns(1, Math.Min(colCount, 50)).AdjustToContents(1, Math.Min(totalRows, 300), 10.0, 50.0);
+                sheet.Columns(1, Math.Min(colCount, 50)).AdjustToContents(1, Math.Min(totalRows, 80), 10.0, 50.0);
             }
             catch
             {
@@ -1716,13 +1729,11 @@ namespace GSTJsonToExcel.Services.Implementations
 
         private static void SetTextCell(IXLCell cell, string value)
         {
-            cell.Style.NumberFormat.Format = "@";
             cell.SetValue(value ?? string.Empty);
         }
 
         private static void SetNumberCell(IXLCell cell, decimal value)
         {
-            cell.Style.NumberFormat.Format = "#,##0.00";
             cell.SetValue(value);
         }
 

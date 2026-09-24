@@ -46,9 +46,43 @@ namespace GSTJsonToExcel.ViewModels
         private string _elapsedTimeDisplay = string.Empty;
         private string _completionSummaryDisplay = string.Empty;
 
+        private bool _isAnnualReportTab;
+
+        public GSTJsonToExcel.Features.AnnualReport.ViewModels.AnnualReportViewModel AnnualReportVM { get; }
+
+        public bool IsStandardConverterTab
+        {
+            get => !_isAnnualReportTab;
+            set
+            {
+                if (value && _isAnnualReportTab)
+                {
+                    _isAnnualReportTab = false;
+                    OnPropertyChanged(nameof(IsStandardConverterTab));
+                    OnPropertyChanged(nameof(IsAnnualReportTab));
+                }
+            }
+        }
+
+        public bool IsAnnualReportTab
+        {
+            get => _isAnnualReportTab;
+            set
+            {
+                if (SetProperty(ref _isAnnualReportTab, value))
+                {
+                    OnPropertyChanged(nameof(IsStandardConverterTab));
+                }
+            }
+        }
+
+        public ICommand SwitchToStandardTabCommand { get; }
+        public ICommand SwitchToAnnualTabCommand { get; }
+
         public ObservableCollection<ScannedFileItem> CandidateItems { get; } = new();
         public ObservableCollection<ScannedFileItem> FilteredCandidateItems { get; } = new();
         public ObservableCollection<ScannedFileItem> IgnoredItems { get; } = new();
+        public ObservableCollection<SelectableMonthOption> AvailableMonths { get; } = new();
         public ObservableCollection<GeneratedTypeOutput> GeneratedFiles { get; } = new();
         public ObservableCollection<FileProcessingErrorReport> ErrorReports { get; } = new();
 
@@ -63,6 +97,10 @@ namespace GSTJsonToExcel.ViewModels
             _fileService = fileService;
             _logger = logger;
 
+            AnnualReportVM = new GSTJsonToExcel.Features.AnnualReport.ViewModels.AnnualReportViewModel(fileService, logger);
+            SwitchToStandardTabCommand = new RelayCommand(() => IsAnnualReportTab = false);
+            SwitchToAnnualTabCommand = new RelayCommand(() => IsAnnualReportTab = true);
+
             SelectFilesCommand = new RelayCommand(SelectFiles, () => !IsBusy);
             SelectFolderCommand = new RelayCommand(SelectFolder, () => !IsBusy);
             ConvertCommand = new RelayCommand(async () => await StartBatchConversionAsync(), () => CanConvert);
@@ -71,10 +109,12 @@ namespace GSTJsonToExcel.ViewModels
             ShowInFolderCommand = new RelayCommand(param => ShowInFolder(param as string));
             SelectAllCommand = new RelayCommand(() => SetAllSelection(true), () => !IsBusy && HasScannedFiles);
             DeselectAllCommand = new RelayCommand(() => SetAllSelection(false), () => !IsBusy && HasScannedFiles);
+            SelectAllMonthsCommand = new RelayCommand(() => SetAllMonthsSelection(true), () => !IsBusy && HasAvailableMonths);
+            DeselectAllMonthsCommand = new RelayCommand(() => SetAllMonthsSelection(false), () => !IsBusy && HasAvailableMonths);
             SetFilterCategoryCommand = new RelayCommand(param => SelectedCategoryFilter = param as string ?? "All");
-            ClearCommand = new RelayCommand(ResetState, () => !IsBusy);
+            ClearCommand = new RelayCommand(ResetState);
 
-            _logger.LogInfo("MainViewModel initialized with multi-file and folder scanning capabilities.");
+            _logger.LogInfo("MainViewModel initialized with multi-file, folder scanning, and Annual Report capabilities.");
         }
 
         #region Properties
@@ -289,6 +329,10 @@ namespace GSTJsonToExcel.ViewModels
         }
 
         public int SelectedFilesCount => CandidateItems.Count(f => f.IsReadyToProcess && f.IsSelected);
+        public bool HasAvailableMonths => AvailableMonths.Count > 0;
+        public string SelectedMonthsSummary => AvailableMonths.Count == 0
+            ? string.Empty
+            : $"{AvailableMonths.Count(m => m.IsSelected)} of {AvailableMonths.Count} Month(s) Selected  •  {SelectedFilesCount} file(s) ready to convert";
 
         #endregion
 
@@ -302,6 +346,8 @@ namespace GSTJsonToExcel.ViewModels
         public ICommand ShowInFolderCommand { get; }
         public ICommand SelectAllCommand { get; }
         public ICommand DeselectAllCommand { get; }
+        public ICommand SelectAllMonthsCommand { get; }
+        public ICommand DeselectAllMonthsCommand { get; }
         public ICommand SetFilterCategoryCommand { get; }
         public ICommand ClearCommand { get; }
 
@@ -332,6 +378,12 @@ namespace GSTJsonToExcel.ViewModels
             var pathList = paths.Where(p => !string.IsNullOrWhiteSpace(p)).ToList();
             if (pathList.Count == 0) return;
 
+            if (IsAnnualReportTab)
+            {
+                await AnnualReportVM.AddPathsAsync(pathList);
+                return;
+            }
+
             IsScanning = true;
             ConversionSuccessful = false;
             HasError = false;
@@ -354,6 +406,7 @@ namespace GSTJsonToExcel.ViewModels
                         if (e.PropertyName == nameof(ScannedFileItem.IsSelected))
                         {
                             OnPropertyChanged(nameof(SelectedFilesCount));
+                            OnPropertyChanged(nameof(SelectedMonthsSummary));
                             OnPropertyChanged(nameof(CanConvert));
                         }
                     };
@@ -366,6 +419,7 @@ namespace GSTJsonToExcel.ViewModels
                     IgnoredItems.Add(item);
                 }
 
+                RebuildAvailableMonths();
                 ApplyFilter();
 
                 if (pathList.Count == 1 && Directory.Exists(pathList[0]))
@@ -488,6 +542,56 @@ namespace GSTJsonToExcel.ViewModels
             }
         }
 
+        private void RebuildAvailableMonths()
+        {
+            AvailableMonths.Clear();
+
+            var readyGroups = CandidateItems
+                .Where(f => f.IsReadyToProcess && !string.IsNullOrWhiteSpace(f.ReturnPeriod))
+                .GroupBy(f => f.ReturnPeriod, StringComparer.OrdinalIgnoreCase)
+                .OrderBy(g => g.Min(x => x.PeriodSortKey))
+                .ToList();
+
+            foreach (var group in readyGroups)
+            {
+                var option = new SelectableMonthOption
+                {
+                    MonthLabel = group.Key,
+                    SortKey = group.Min(x => x.PeriodSortKey),
+                    FileCount = group.Count(),
+                    OnSelectionChanged = changedMonth =>
+                    {
+                        foreach (var item in CandidateItems.Where(f => f.IsReadyToProcess && string.Equals(f.ReturnPeriod, changedMonth.MonthLabel, StringComparison.OrdinalIgnoreCase)))
+                        {
+                            item.IsSelected = changedMonth.IsSelected;
+                        }
+                        ApplyFilter();
+                        OnPropertyChanged(nameof(SelectedMonthsSummary));
+                        OnPropertyChanged(nameof(CanConvert));
+                    }
+                };
+                AvailableMonths.Add(option);
+            }
+
+            OnPropertyChanged(nameof(HasAvailableMonths));
+            OnPropertyChanged(nameof(SelectedMonthsSummary));
+        }
+
+        private void SetAllMonthsSelection(bool isSelected)
+        {
+            foreach (var m in AvailableMonths)
+            {
+                m.SetSelectedSilent(isSelected);
+            }
+            foreach (var item in CandidateItems.Where(f => f.IsReadyToProcess))
+            {
+                item.IsSelected = isSelected;
+            }
+            ApplyFilter();
+            OnPropertyChanged(nameof(SelectedMonthsSummary));
+            OnPropertyChanged(nameof(CanConvert));
+        }
+
         public void ApplyFilter()
         {
             FilteredCandidateItems.Clear();
@@ -503,9 +607,20 @@ namespace GSTJsonToExcel.ViewModels
                 _ => CandidateItems
             };
 
+            if (AvailableMonths.Count > 0 && SelectedCategoryFilter != "Duplicates" && SelectedCategoryFilter != "Ignored")
+            {
+                var selectedMonthLabels = new HashSet<string>(
+                    AvailableMonths.Where(m => m.IsSelected).Select(m => m.MonthLabel),
+                    StringComparer.OrdinalIgnoreCase);
+
+                sourceList = sourceList.Where(f => !f.IsReadyToProcess || selectedMonthLabels.Contains(f.ReturnPeriod));
+            }
+
             if (!string.IsNullOrWhiteSpace(SearchText))
             {
-                sourceList = sourceList.Where(f => f.FileName.Contains(SearchText, StringComparison.OrdinalIgnoreCase));
+                sourceList = sourceList.Where(f =>
+                    f.FileName.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ||
+                    (f.ReturnPeriod?.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ?? false));
             }
 
             foreach (var item in sourceList)
@@ -515,6 +630,7 @@ namespace GSTJsonToExcel.ViewModels
 
             OnPropertyChanged(nameof(FilteredCandidateItems));
             OnPropertyChanged(nameof(SelectedFilesCount));
+            OnPropertyChanged(nameof(SelectedMonthsSummary));
         }
 
         private void SetAllSelection(bool isSelected)
@@ -527,6 +643,7 @@ namespace GSTJsonToExcel.ViewModels
                 }
             }
             OnPropertyChanged(nameof(SelectedFilesCount));
+            OnPropertyChanged(nameof(SelectedMonthsSummary));
             OnPropertyChanged(nameof(CanConvert));
         }
 
@@ -567,12 +684,19 @@ namespace GSTJsonToExcel.ViewModels
 
         private void ResetState()
         {
+            _conversionCts?.Cancel();
+            IsScanning = false;
+            IsConverting = false;
+
+            AnnualReportVM.ClearAll();
+
             ScanSummary = null;
             SelectionTitle = "No files or folder selected";
             SelectionSubtitle = "Select multiple JSON files, select an entire folder, or drag & drop here.";
             CandidateItems.Clear();
             FilteredCandidateItems.Clear();
             IgnoredItems.Clear();
+            AvailableMonths.Clear();
             GeneratedFiles.Clear();
             ErrorReports.Clear();
             SearchText = string.Empty;
@@ -585,6 +709,14 @@ namespace GSTJsonToExcel.ViewModels
             ProgressPhase = "Ready";
             ProgressMessage = "Select JSON files or a folder to begin.";
             CurrentFileDisplay = string.Empty;
+            OnPropertyChanged(nameof(HasScannedFiles));
+            OnPropertyChanged(nameof(HasReadyToProcess));
+            OnPropertyChanged(nameof(HasAvailableMonths));
+            OnPropertyChanged(nameof(SelectedMonthsSummary));
+            OnPropertyChanged(nameof(SelectedFilesCount));
+            OnPropertyChanged(nameof(CanConvert));
+            OnPropertyChanged(nameof(CanOpenOutput));
+            CommandManager.InvalidateRequerySuggested();
         }
 
         #endregion

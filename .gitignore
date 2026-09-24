@@ -6,7 +6,8 @@
 *.suo
 *.pdb
 
-# Explicitly INCLUDE published .exe files and installer
-!publish/
-!publish/**
-!publish/**/*.exe
+# Ignore intermediate publish DLL directories while keeping the final installer Setup.exe
+publish/win-x64/
+publish/win-x86/
+publish/installer/GSTJsonToExcel_Setup_v2.5.exe
+!publish/installer/GSTJsonToExcel_Setup.exe

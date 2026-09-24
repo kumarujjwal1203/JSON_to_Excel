@@ -18,6 +18,8 @@ namespace GSTJsonToExcel.Models
         public long FileSizeBytes { get; set; }
         public string Extension { get; set; } = string.Empty;
         public GstFileType FileType { get; set; } = GstFileType.Unknown;
+        public string ReturnPeriod { get; set; } = "Unknown";
+        public int PeriodSortKey { get; set; } = 999999;
         public FileValidationStatus Status { get; set; } = FileValidationStatus.Valid;
         public string? ContentHash { get; set; }
         public string? DuplicateOf { get; set; }
